@@ -5,14 +5,6 @@
 //  Created by Bacho on 17.01.26.
 //
 
-
-//
-//  NetworkError.swift
-//  MyNetworkManager
-//
-//  Created by Bacho on 17.01.26.
-//
-
 import Foundation
 
 public enum NetworkError: LocalizedError {
