@@ -25,13 +25,48 @@ public final class NetworkManager {
         self.encoder = encoder
     }
     
-    //  Generic Fetch
-    public func fetch<T: Codable & Sendable, U: Codable>(
+    // MARK: - Fetch WITHOUT Body (GET, DELETE)
+    
+    /// Generic fetch for requests without body
+    public func fetch<T: Codable & Sendable>(
         urlString: String,
         method: HTTPMethodType = .get,
-        body: U? = nil,
         headers: [String: String]? = nil
     ) async throws -> T {
+        try await performRequest(
+            urlString: urlString,
+            method: method,
+            body: nil as String?,
+            headers: headers
+        )
+    }
+    
+    // MARK: - Fetch WITH Body (POST, PUT, PATCH)
+    
+    /// Generic fetch for requests with body
+    public func fetch<T: Codable & Sendable, U: Codable>(
+        urlString: String,
+        method: HTTPMethodType,
+        body: U,
+        headers: [String: String]? = nil
+    ) async throws -> T {
+        try await performRequest(
+            urlString: urlString,
+            method: method,
+            body: body,
+            headers: headers
+        )
+    }
+    
+    // MARK: - Private Implementation
+    
+    private func performRequest<T: Codable & Sendable, U: Codable>(
+        urlString: String,
+        method: HTTPMethodType,
+        body: U?,
+        headers: [String: String]?
+    ) async throws -> T {
+        // Validate URL
         guard let url = URL(string: urlString) else {
             throw NetworkError.invalidURL
         }
