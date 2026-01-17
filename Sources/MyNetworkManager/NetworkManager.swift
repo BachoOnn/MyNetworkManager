@@ -23,11 +23,11 @@ public final class NetworkManager {
         self.encoder = encoder
     }
     
+    // MARK: - GET Request (No Body)
     
-    /// Fetch WITHOUT body (GET, DELETE)
-    public func fetch<T: Codable & Sendable>(
+    /// Fetch data without body (GET, DELETE)
+    public func get<T: Codable & Sendable>(
         urlString: String,
-        method: HTTPMethodType = .get,
         headers: [String: String]? = nil
     ) async throws -> T {
         guard let url = URL(string: urlString) else {
@@ -35,7 +35,7 @@ public final class NetworkManager {
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
+        request.httpMethod = "GET"
         
         headers?.forEach { key, value in
             request.setValue(value, forHTTPHeaderField: key)
@@ -54,10 +54,11 @@ public final class NetworkManager {
         return try decoder.decode(T.self, from: data)
     }
     
-    /// Fetch WITH body (POST, PUT, PATCH)
-    public func fetch<T: Codable & Sendable, U: Codable>(
+    // MARK: - POST Request (With Body)
+    
+    /// Post data with body (POST, PUT, PATCH)
+    public func post<T: Codable & Sendable, U: Codable>(
         urlString: String,
-        method: HTTPMethodType,
         body: U,
         headers: [String: String]? = nil
     ) async throws -> T {
@@ -66,7 +67,7 @@ public final class NetworkManager {
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
+        request.httpMethod = "POST"
         
         headers?.forEach { key, value in
             request.setValue(value, forHTTPHeaderField: key)
@@ -74,6 +75,37 @@ public final class NetworkManager {
         
         request.httpBody = try encoder.encode(body)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw NetworkError.statusCode(httpResponse.statusCode)
+        }
+        
+        return try decoder.decode(T.self, from: data)
+    }
+    
+    // MARK: - DELETE Request (No Body)
+    
+    /// Delete data without body
+    public func delete<T: Codable & Sendable>(
+        urlString: String,
+        headers: [String: String]? = nil
+    ) async throws -> T {
+        guard let url = URL(string: urlString) else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        
+        headers?.forEach { key, value in
+            request.setValue(value, forHTTPHeaderField: key)
+        }
         
         let (data, response) = try await session.data(for: request)
         
