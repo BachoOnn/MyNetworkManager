@@ -9,12 +9,10 @@ import Foundation
 
 public final class NetworkManager {
     
-    // MARK: - Properties
     private let session: URLSession
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
     
-    // MARK: - Initialization
     public init(
         session: URLSession = .shared,
         decoder: JSONDecoder = JSONDecoder(),
@@ -24,9 +22,7 @@ public final class NetworkManager {
         self.decoder = decoder
         self.encoder = encoder
     }
-    
-    // MARK: - Fetch WITHOUT Body (GET, DELETE)
-    
+        
     /// Generic fetch for requests without body
     public func fetch<T: Codable & Sendable>(
         urlString: String,
@@ -40,9 +36,7 @@ public final class NetworkManager {
             headers: headers
         )
     }
-    
-    // MARK: - Fetch WITH Body (POST, PUT, PATCH)
-    
+        
     /// Generic fetch for requests with body
     public func fetch<T: Codable & Sendable, U: Codable>(
         urlString: String,
@@ -57,9 +51,7 @@ public final class NetworkManager {
             headers: headers
         )
     }
-    
-    // MARK: - Private Implementation
-    
+        
     private func performRequest<T: Codable & Sendable, U: Codable>(
         urlString: String,
         method: HTTPMethodType,
