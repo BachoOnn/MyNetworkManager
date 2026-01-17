@@ -23,7 +23,6 @@ public final class NetworkManager {
         self.encoder = encoder
     }
     
-    // MARK: - Public Fetch Methods
     
     /// Fetch WITHOUT body (GET, DELETE)
     public func fetch<T: Codable & Sendable>(
